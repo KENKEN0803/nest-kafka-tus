@@ -5,10 +5,8 @@ import { v4 as uuid } from 'uuid';
 import { FileMetadata } from './models/file-metadata.model';
 import { FileStore } from '@tus/file-store';
 import { S3Store } from '@tus/s3-store';
-import { EVENTS } from '@tus/server';
 import assert from 'assert';
 import * as HTTP from 'http';
-import * as http from 'http';
 
 @Injectable()
 export class TusService implements OnModuleInit {
@@ -132,25 +130,18 @@ export class TusService implements OnModuleInit {
 
   private initializeTusServer() {
     this.logger.verbose(`Initializing Tus Server`);
-    this.tusServer.on(EVENTS.POST_RECEIVE, (event) => {
-      this.logger.verbose(
-        `Upload EVENTS.POST_RECEIVE ${JSON.stringify(event.file)}`,
-      );
-    });
-    this.tusServer.on(EVENTS.POST_CREATE, (event) => {
-      this.logger.verbose(
-        `Upload EVENTS.POST_CREATE ${JSON.stringify(event.file)}`,
-      );
-    });
-    this.tusServer.on(EVENTS.POST_FINISH, (event) => {
-      this.logger.verbose(
-        `Upload EVENTS.POST_FINISH ${JSON.stringify(event.file)}`,
-      );
-    });
-    this.tusServer.on(EVENTS.POST_TERMINATE, (event) => {
-      this.logger.verbose(
-        `Upload EVENTS.POST_TERMINATE ${JSON.stringify(event.file)}`,
-      );
-    });
+    // this.tusServer.on(EVENTS.POST_RECEIVE, (...args) => {
+    //   this.logger.verbose(`Upload EVENTS.POST_RECEIVE`);
+    // });
+    // this.tusServer.on(EVENTS.POST_CREATE, (...args) => {
+    //   this.logger.verbose(`Upload EVENTS.POST_CREATE`);
+    // });
+    // this.tusServer.on(EVENTS.POST_FINISH, (...args) => {
+    //   this.logger.verbose(`Upload EVENTS.POST_FINISH`);
+    // });
+    // this.tusServer.on(EVENTS.POST_TERMINATE, (...args) => {
+    //   // 작동안함
+    //   this.logger.verbose(`Upload EVENTS.POST_TERMINATE `);
+    // });
   }
 }

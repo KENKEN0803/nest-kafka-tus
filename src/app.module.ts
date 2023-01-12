@@ -4,6 +4,9 @@ import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { KAFKA_BROKERS } from './config/server.config';
 import { StorageModule } from './storage/storage.module';
+import { KafkaModule } from './kafka/kafka.module';
+import { ShellModule } from './shell/shell.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import { StorageModule } from './storage/storage.module';
       },
     ]),
     StorageModule,
+    KafkaModule,
+    ShellModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
