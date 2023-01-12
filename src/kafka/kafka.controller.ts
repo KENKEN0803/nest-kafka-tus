@@ -10,9 +10,9 @@ import { UNZIP_WAIT } from '../config/topics.config';
 
 @Controller()
 export class KafkaController {
-  constructor(private readonly kafkaService: KafkaService) {}
-
   private logger = new Logger('KafkaController');
+
+  constructor(private readonly kafkaService: KafkaService) {}
 
   @MessagePattern(UNZIP_WAIT)
   async shiftUnzip(@Payload() payload: any, @Ctx() ctx: KafkaContext) {

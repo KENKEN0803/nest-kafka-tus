@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EVENTS, Server, Upload } from '@tus/server';
 import { storageConfig } from 'src/config/storage.config';
 import { v4 as uuid } from 'uuid';
@@ -9,9 +9,13 @@ import assert from 'assert';
 import * as HTTP from 'http';
 import { KafkaService } from '../kafka/kafka.service';
 import { UNZIP_WAIT } from '../config/topics.config';
+import { TUS_URL_PRI_FIX } from '../config/server.config';
 
 @Injectable()
 export class TusService implements OnModuleInit {
+  private tusServer;
+  private logger = new Logger('TusService');
+
   constructor(private readonly kafkaService: KafkaService) {
     const stores = {
       S3Store: () => {
@@ -42,7 +46,7 @@ export class TusService implements OnModuleInit {
       },
       FileStore: () =>
         new FileStore({
-          directory: './files',
+          directory: storageConfig.uploadFileStoragePath,
         }),
     };
 
@@ -51,17 +55,13 @@ export class TusService implements OnModuleInit {
     const store = stores[storeName];
 
     this.tusServer = new Server({
-      path: '/files',
+      path: TUS_URL_PRI_FIX,
       datastore: store(),
       namingFunction: this.fileNameFromRequest,
       onUploadFinish: this.onUploadFinish,
       onUploadCreate: this.onUploadCreate,
     });
   }
-
-  private tusServer;
-
-  private logger = new Logger('TusService');
 
   onModuleInit() {
     this.initializeTusServer();
