@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { API_SERVER_PORT, KAFKA_BROKERS } from './config/constraint';
+import { API_SERVER_PORT, KAFKA_BROKERS } from './config/server.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   await app.listen(API_SERVER_PORT);
+
   const kafka = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {

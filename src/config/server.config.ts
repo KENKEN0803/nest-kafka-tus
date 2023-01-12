@@ -1,4 +1,4 @@
-export const API_SERVER_PORT = 3000;
+export const API_SERVER_PORT = 8080;
 export const KAFKA_BROKERS = [
   'localhost:19092',
   'localhost:29092',

@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { KAFKA_BROKERS } from './config/constraint';
+import { KAFKA_BROKERS } from './config/server.config';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { KAFKA_BROKERS } from './config/constraint';
         },
       },
     ]),
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
