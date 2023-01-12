@@ -1,5 +1,5 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { Server, Upload } from '@tus/server';
+import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
+import { EVENTS, Server, Upload } from '@tus/server';
 import { storageConfig } from 'src/config/storage.config';
 import { v4 as uuid } from 'uuid';
 import { FileMetadata } from './models/file-metadata.model';
@@ -7,10 +7,12 @@ import { FileStore } from '@tus/file-store';
 import { S3Store } from '@tus/s3-store';
 import assert from 'assert';
 import * as HTTP from 'http';
+import { KafkaService } from '../kafka/kafka.service';
+import { UNZIP_WAIT } from '../config/topic.config';
 
 @Injectable()
 export class TusService implements OnModuleInit {
-  constructor() {
+  constructor(private readonly kafkaService: KafkaService) {
     const stores = {
       S3Store: () => {
         assert.ok(
@@ -65,7 +67,7 @@ export class TusService implements OnModuleInit {
     this.initializeTusServer();
   }
 
-  async handleTus(req, res) {
+  async handleTus(req: HTTP.IncomingMessage, res: HTTP.ServerResponse) {
     return this.tusServer.handle(req, res);
   }
 
@@ -75,7 +77,7 @@ export class TusService implements OnModuleInit {
     upload: Upload,
   ): Promise<HTTP.ServerResponse<HTTP.IncomingMessage>> => {
     console.log(upload);
-    this.logger.verbose('onUploadCreate');
+    this.logger.verbose('UploadCreate');
     return res;
   };
 
@@ -85,11 +87,15 @@ export class TusService implements OnModuleInit {
     upload: Upload,
   ): Promise<HTTP.ServerResponse<HTTP.IncomingMessage>> => {
     console.log(upload);
-    this.logger.verbose('onUploadFinish');
+    this.logger.verbose('UploadFinish');
+    await this.kafkaService.publish(UNZIP_WAIT, {
+      fileId: upload.id,
+      metadata: upload.metadata,
+    });
     return res;
   };
 
-  private fileNameFromRequest = (req) => {
+  private fileNameFromRequest = (req: any) => {
     try {
       const metadata = this.getFileMetadata(req);
 
@@ -130,18 +136,18 @@ export class TusService implements OnModuleInit {
 
   private initializeTusServer() {
     this.logger.verbose(`Initializing Tus Server`);
-    // this.tusServer.on(EVENTS.POST_RECEIVE, (...args) => {
-    //   this.logger.verbose(`Upload EVENTS.POST_RECEIVE`);
-    // });
-    // this.tusServer.on(EVENTS.POST_CREATE, (...args) => {
-    //   this.logger.verbose(`Upload EVENTS.POST_CREATE`);
-    // });
-    // this.tusServer.on(EVENTS.POST_FINISH, (...args) => {
-    //   this.logger.verbose(`Upload EVENTS.POST_FINISH`);
-    // });
-    // this.tusServer.on(EVENTS.POST_TERMINATE, (...args) => {
-    //   // 작동안함
-    //   this.logger.verbose(`Upload EVENTS.POST_TERMINATE `);
-    // });
+    this.tusServer.on(EVENTS.POST_RECEIVE, (...args) => {
+      this.logger.verbose(`Upload EVENTS.POST_RECEIVE`);
+    });
+    this.tusServer.on(EVENTS.POST_CREATE, (...args) => {
+      this.logger.verbose(`Upload EVENTS.POST_CREATE`);
+    });
+    this.tusServer.on(EVENTS.POST_FINISH, (...args) => {
+      this.logger.verbose(`Upload EVENTS.POST_FINISH`);
+    });
+    this.tusServer.on(EVENTS.POST_TERMINATE, (...args) => {
+      // 작동안함
+      this.logger.verbose(`Upload EVENTS.POST_TERMINATE `);
+    });
   }
 }
