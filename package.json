@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "nest public",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -24,6 +24,7 @@
     "@nestjs/core": "^9.2.1",
     "@nestjs/microservices": "^9.2.1",
     "@nestjs/platform-express": "^9.2.1",
+    "@nestjs/serve-static": "^3.0.0",
     "@nestjs/typeorm": "^9.0.1",
     "@tus/file-store": "^1.0.0-beta.1",
     "@tus/s3-store": "^1.0.0-beta.1",
@@ -38,7 +39,6 @@
     "typeorm": "^0.3.11"
   },
   "devDependencies": {
-    "@types/uuid": "^9.0.0",
     "@nestjs/cli": "^9.1.8",
     "@nestjs/schematics": "^9.0.4",
     "@nestjs/testing": "^9.2.1",
@@ -46,6 +46,7 @@
     "@types/jest": "29.2.5",
     "@types/node": "18.11.18",
     "@types/supertest": "^2.0.12",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
     "eslint": "^8.31.0",

@@ -2,6 +2,7 @@ version: '2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
+    restart: always
     environment:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -13,6 +14,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
+    restart: always
     depends_on:
       - zookeeper
     ports:
@@ -28,6 +30,7 @@ services:
 
   #  kafka-mqtt:
   #    image: confluentinc/cp-kafka-mqtt:latest
+  #    restart: always
   #    network_mode: host
   #    depends_on:
   #      - kafka
@@ -39,11 +42,13 @@ services:
 
   redis:
     image: redis:latest
+    restart: always
     ports:
       - 6379:6379
 
   emqx:
     image: emqx:latest
+    restart: always
     ports:
       - 1883:1883
       - 8081:8081
@@ -54,6 +59,7 @@ services:
 
   mariadb:
     image: mariadb:latest
+    restart: always
     ports:
       - 3306:3306
     environment:
@@ -61,6 +67,7 @@ services:
 
   mongodb:
     image: mongo:latest
+    restart: always
     ports:
       - "27017:27017"
     environment:

@@ -28,6 +28,7 @@ bootstrap()
     console.info(`API_SERVER_PORT: ${API_SERVER_PORT}`);
     console.info(`KAFKA_BROKERS: ${KAFKA_BROKERS}`);
     console.info(`🚀 All service started successfully`);
+    console.info(`http://localhost:${API_SERVER_PORT}`);
     console.info(`=================================`);
   })
   .catch((err) => {
