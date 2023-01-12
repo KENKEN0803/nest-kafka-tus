@@ -83,3 +83,59 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+  #  kafka-mqtt:
+  #    image: confluentinc/cp-kafka-mqtt:latest
+  #    network_mode: host
+  #    depends_on:
+  #      - kafka
+  #    environment:
+  #      KAFKA_MQTT_BOOTSTRAP_SERVERS: PLAINTEXT://localhost:29092
+  #      KAFKA_MQTT_TOPIC_REGEX_LIST: temperature:.*
+  #    extra_hosts:
+  #      - "moby:127.0.0.1"
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+
+  emqx:
+    image: emqx:latest
+    ports:
+      - 1883:1883
+      - 8081:8081
+      - 8083:8083
+      - 8084:8084
+      - 8883:8883
+      - 18083:18083
+
+  mariadb:
+    image: mariadb:latest
+    ports:
+      - 3306:3306
+    environment:
+      - MARIADB_ROOT_PASSWORD=1234
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
+
+#  mongo-express:
+#    image: mongo-express:latest
+#    restart: always
+#    ports:
+#      - "27018:8081"
+#    environment:
+#      - ME_CONFIG_MONGODB_SERVER=mongodb
+#      - ME_CONFIG_MONGODB_PORT=27017
+#      - ME_CONFIG_MONGODB_ADMINUSERNAME=mongo
+#      - ME_CONFIG_MONGODB_ADMINPASSWORD=mongo
+#      - ME_CONFIG_BASICAUTH_USERNAME=mongo
+#      - ME_CONFIG_BASICAUTH_PASSWORD=mongo
+#    depends_on:
+#      - mongodb
