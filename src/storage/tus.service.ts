@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { EVENTS, Server, Upload } from '@tus/server';
 import { storageConfig } from 'src/config/storage.config';
 import { v4 as uuid } from 'uuid';
@@ -8,7 +8,7 @@ import { S3Store } from '@tus/s3-store';
 import assert from 'assert';
 import * as HTTP from 'http';
 import { KafkaService } from '../kafka/kafka.service';
-import { UNZIP_WAIT } from '../config/topic.config';
+import { UNZIP_WAIT } from '../config/topics.config';
 
 @Injectable()
 export class TusService implements OnModuleInit {

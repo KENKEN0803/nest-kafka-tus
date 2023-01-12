@@ -6,7 +6,7 @@ import {
   Payload,
 } from '@nestjs/microservices';
 import { KafkaService } from './kafka.service';
-import { UNZIP_WAIT } from '../config/topic.config';
+import { UNZIP_WAIT } from '../config/topics.config';
 
 @Controller()
 export class KafkaController {
