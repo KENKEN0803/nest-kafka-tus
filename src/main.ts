@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { API_SERVER_PORT, KAFKA_BROKERS } from './config/server.config';
+import { Logger } from '@nestjs/common';
+
+const logger = new Logger('main');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,13 +27,11 @@ async function bootstrap() {
 
 bootstrap()
   .then(() => {
-    console.info(`=================================`);
-    console.info(`API_SERVER_PORT: ${API_SERVER_PORT}`);
-    console.info(`KAFKA_BROKERS: ${KAFKA_BROKERS}`);
-    console.info(`🚀 All service started successfully`);
-    console.info(`http://localhost:${API_SERVER_PORT}`);
-    console.info(`=================================`);
+    logger.verbose(`API Server is running on port ${API_SERVER_PORT}`);
+    logger.verbose(`Kafka brokers: ${KAFKA_BROKERS}`);
+    logger.verbose(`Demo url => http://localhost:${API_SERVER_PORT}`);
+    logger.verbose(`🚀 All service started successfully 🚀`);
   })
   .catch((err) => {
-    console.error(err);
+    logger.error(`❌ Error starting service: ${err}`);
   });

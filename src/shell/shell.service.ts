@@ -10,8 +10,8 @@ export class ShellService {
         '-q', // quiet
         '-o', // overwrite
         '-d', // destination
-        storageConfig.unzipDir,
-        `${storageConfig.storageDir}/${fileName}`,
+        storageConfig.unzipOutputPath,
+        `${storageConfig.uploadFileStoragePath}/${fileName}`,
       ]);
       unzip.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);

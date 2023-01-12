@@ -5,8 +5,8 @@ dotenv.config();
 
 export const storageConfig = {
   storageDriver: process.env.TUS_STORAGE_DRIVER || 'FileStore',
-  unzipDir: process.env.UNZIP_DIR,
-  storageDir: process.env.TUS_STORAGE_PATH,
+  unzipOutputPath: process.env.UNZIP_OUTPUT_PATH,
+  uploadFileStoragePath: process.env.UPLOAD_FILE_STORAGE_PATH,
 
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,

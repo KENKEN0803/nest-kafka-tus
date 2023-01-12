@@ -88,6 +88,7 @@ export class TusService implements OnModuleInit {
   ): Promise<HTTP.ServerResponse<HTTP.IncomingMessage>> => {
     console.log(upload);
     this.logger.verbose('UploadFinish');
+    // 카프카 메시지 전송
     await this.kafkaService.publish(UNZIP_WAIT, {
       fileId: upload.id,
       metadata: upload.metadata,
@@ -135,7 +136,12 @@ export class TusService implements OnModuleInit {
   }
 
   private initializeTusServer() {
-    this.logger.verbose(`Initializing Tus Server`);
+    this.logger.verbose(`Initializing Tus File Upload Server`);
+    this.logger.verbose(`Storage Driver: ${storageConfig.storageDriver}`);
+    this.logger.verbose(`Unzip Output Path: ${storageConfig.unzipOutputPath}`);
+    this.logger.verbose(
+      `Upload File Storage Path: ${storageConfig.uploadFileStoragePath}`,
+    );
     this.tusServer.on(EVENTS.POST_RECEIVE, (...args) => {
       this.logger.verbose(`Upload EVENTS.POST_RECEIVE`);
     });
