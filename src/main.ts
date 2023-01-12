@@ -7,22 +7,21 @@ import { Logger } from '@nestjs/common';
 const logger = new Logger('main');
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-  await app.listen(API_SERVER_PORT);
-
-  const kafka = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
+  const [kafka, app] = await Promise.all([
+    await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
       transport: Transport.KAFKA,
       options: {
         client: {
           brokers: KAFKA_BROKERS,
         },
       },
-    },
-  );
-  await kafka.listen();
+    }),
+    await NestFactory.create(AppModule),
+  ]);
+
+  app.enableCors();
+
+  await Promise.all([await kafka.listen(), await app.listen(API_SERVER_PORT)]);
 }
 
 bootstrap()
