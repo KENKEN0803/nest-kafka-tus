@@ -3,6 +3,7 @@ services:
 
   zookeeper-1:
     image: confluentinc/cp-zookeeper:6.1.9
+    platform: linux/amd64
     restart: always
     ports:
       - '32181:32181'
@@ -12,6 +13,7 @@ services:
 
   kafka-1:
     image: confluentinc/cp-kafka:6.1.9
+    platform: linux/amd64
     restart: always
     ports:
       - '9092:9092'
@@ -28,6 +30,7 @@ services:
 
   kafka-2:
     image: confluentinc/cp-kafka:6.1.9
+    platform: linux/amd64
     restart: always
     ports:
       - '9093:9093'
@@ -44,6 +47,7 @@ services:
 
   kafka-3:
     image: confluentinc/cp-kafka:6.1.9
+    platform: linux/amd64
     restart: always
     ports:
       - '9094:9094'
