@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { EVENTS, Server, Upload } from '@tus/server';
+import { EVENTS, MemoryConfigstore, Server, Upload } from '@tus/server';
 import { storageConfig } from 'src/config/storage.config';
 import { v4 as uuid } from 'uuid';
 import { FileMetadata } from './models/file-metadata.model';
@@ -10,6 +10,7 @@ import * as HTTP from 'http';
 import { KafkaService } from '../kafka/kafka.service';
 import { UNZIP_WAIT } from '../config/topics.config';
 import { TUS_URL_PRI_FIX } from '../config/server.config';
+import { CustomConfigstore } from './customComfigstore/CustomConfigstore';
 
 @Injectable()
 export class TusService implements OnModuleInit {
@@ -44,10 +45,16 @@ export class TusService implements OnModuleInit {
           partSize: 8 * 1024 * 1024, // each uploaded part will have ~8MB,
         });
       },
-      FileStore: () =>
-        new FileStore({
+      FileStore: () => {
+        const configstore = new CustomConfigstore();
+        // const configstore = new MemoryConfigstore();
+        // const configstore = undefined; // use default configstore => ~/.config/configstore/
+
+        return new FileStore({
           directory: storageConfig.uploadFileStoragePath,
-        }),
+          configstore,
+        });
+      },
     };
 
     const storeName = storageConfig.storageDriver || 'FileStore';

@@ -1,5 +1,6 @@
 version: '3.8'
 services:
+
   zookeeper-1:
     image: confluentinc/cp-zookeeper:6.1.9
     restart: always
@@ -59,10 +60,10 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui
+    restart: always
     container_name: kafka-ui
     ports:
       - "8989:8080"
-    restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka-1:29092,kafka-2:29093,kafka-3:29094
@@ -76,55 +77,40 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=1234
 
-#  kafka-mqtt:
-#    image: confluentinc/cp-kafka-mqtt:6.1.9
-#    restart: always
-#    network_mode: host
-#    depends_on:
-#      - kafka
-#    environment:
-#      KAFKA_MQTT_BOOTSTRAP_SERVERS: PLAINTEXT://localhost:29092
-#      KAFKA_MQTT_TOPIC_REGEX_LIST: temperature:.*
-#    extra_hosts:
-#      - "moby:127.0.0.1"
+  #  kafka-mqtt:
+  #    image: confluentinc/cp-kafka-mqtt:6.1.9
+  #    restart: always
+  #    network_mode: host
+  #    depends_on:
+  #      - kafka
+  #    environment:
+  #      KAFKA_MQTT_BOOTSTRAP_SERVERS: PLAINTEXT://localhost:29092
+  #      KAFKA_MQTT_TOPIC_REGEX_LIST: temperature:.*
+  #    extra_hosts:
+  #      - "moby:127.0.0.1"
 
-#  redis:
-#    image: redis:7.0.7
-#    restart: always
-#    ports:
-#      - 6379:6379
+  redis:
+    image: redis:7.0.7
+    restart: always
+    ports:
+      - "6379:6379"
 
-#  emqx:
-#    image: emqx:5.0.13
-#    restart: always
-#    ports:
-#      - 1883:1883
-#      - 8081:8081
-#      - 8083:8083
-#      - 8084:8084
-#      - 8883:8883
-#      - 18083:18083
+  emqx:
+    image: emqx:5.0.13
+    restart: always
+    ports:
+      - "1883:1883"
+      - "8081:8081"
+      - "8083:8083"
+      - "8084:8084"
+      - "8883:8883"
+      - "18083:18083"
 
-#  mongodb:
-#    image: mongo:6.0.3
-#    restart: always
-#    ports:
-#      - "27017:27017"
-#    environment:
-#      - MONGO_INITDB_ROOT_USERNAME=mongo
-#      - MONGO_INITDB_ROOT_PASSWORD=mongo
-
-#  mongo-express:
-#    image: mongo-express:0.54.0
-#    restart: always
-#    ports:
-#      - "27018:8081"
-#    environment:
-#      - ME_CONFIG_MONGODB_SERVER=mongodb
-#      - ME_CONFIG_MONGODB_PORT=27017
-#      - ME_CONFIG_MONGODB_ADMINUSERNAME=mongo
-#      - ME_CONFIG_MONGODB_ADMINPASSWORD=mongo
-#      - ME_CONFIG_BASICAUTH_USERNAME=mongo
-#      - ME_CONFIG_BASICAUTH_PASSWORD=mongo
-#    depends_on:
-#      - mongodb
+  mongodb:
+    image: mongo:6.0.3
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
