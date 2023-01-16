@@ -33,8 +33,9 @@ export class KafkaService {
             },
           },
         );
+        this.logger.log(`file ${payload.id} deleted`);
       } catch (tusDeleteError) {
-        this.logger.error('tusDeleteError' + tusDeleteError);
+        this.logger.error('file delete failed' + tusDeleteError);
         // 아무 처리 안함
       }
     }

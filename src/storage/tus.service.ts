@@ -1,17 +1,15 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EVENTS, Server, Upload } from '@tus/server';
 import { storageConfig } from 'src/config/storage.config';
-import { v4 as uuid } from 'uuid';
 import { FileMetadata } from './models/file-metadata.model';
 import { FileStore } from '@tus/file-store';
 import { S3Store } from '@tus/s3-store';
 import assert from 'assert';
-import * as HTTP from 'http';
 import { KafkaService } from '../kafka/kafka.service';
 import { UNZIP_WAIT } from '../config/topics.config';
 import { TUS_URL_PRI_FIX } from '../config/server.config';
-import { CustomConfigstore } from './customComfigstore/CustomConfigstore';
 import { tUploadFileKafkaPayload } from './types';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class TusService implements OnModuleInit {
@@ -47,9 +45,9 @@ export class TusService implements OnModuleInit {
         });
       },
       FileStore: () => {
-        const configstore = new CustomConfigstore();
+        // const configstore = new CustomConfigstore();
         // const configstore = new MemoryConfigstore();
-        // const configstore = undefined; // use default configstore => ~/.config/configstore/
+        const configstore = undefined; // use default configstore => ~/.config/configstore/
 
         return new FileStore({
           directory: storageConfig.uploadFileStoragePath,
@@ -75,49 +73,52 @@ export class TusService implements OnModuleInit {
     this.initializeTusServer();
   }
 
-  async handleTus(req: HTTP.IncomingMessage, res: HTTP.ServerResponse) {
+  async handleTus(req: Request, res: Response) {
     return this.tusServer.handle(req, res);
   }
 
   private onUploadCreate = async (
-    req: HTTP.IncomingMessage,
-    res: HTTP.ServerResponse<HTTP.IncomingMessage>,
+    req: Request,
+    res: Response,
     upload: Upload,
-  ): Promise<HTTP.ServerResponse<HTTP.IncomingMessage>> => {
-    console.log(upload);
+  ): Promise<Response> => {
     this.logger.verbose('UploadCreate');
     return res;
   };
 
   private onUploadFinish = async (
-    req: HTTP.IncomingMessage,
-    res: HTTP.ServerResponse<HTTP.IncomingMessage>,
+    req: Request,
+    res: Response,
     upload: Upload,
-  ): Promise<HTTP.ServerResponse<HTTP.IncomingMessage>> => {
-    this.logger.verbose('UploadFinish');
-    // 카프카 메시지 전송
+  ): Promise<Response> => {
+    this.logger.verbose('UploadFinish ' + upload.id);
+
+    const metadata = this.extractMetadata(upload.metadata);
+
     const payload: tUploadFileKafkaPayload = {
       id: upload.id,
       size: upload.size,
       offset: upload.offset,
       metadata: upload.metadata,
       creation_date: upload.creation_date,
+      original_filename: metadata.filename ? metadata.filename : null,
+      mimetype: metadata.filetype ? metadata.filetype : null,
     };
+
+    // 카프카 메시지 전송
     await this.kafkaService.publish(UNZIP_WAIT, payload);
     return res;
   };
 
-  private fileNameFromRequest = (req: any) => {
+  private fileNameFromRequest = (req: Request) => {
     try {
       const metadata = this.getFileMetadata(req);
 
-      const prefix: string = uuid();
+      const prefix = new Date().getTime().toString();
 
-      const fileName = metadata.extension
-        ? prefix + '.' + metadata.extension
+      return metadata.extension && metadata.name
+        ? metadata.name + '_' + prefix + '.' + metadata.extension
         : prefix;
-
-      return fileName;
     } catch (e) {
       this.logger.error(e);
 
@@ -126,22 +127,30 @@ export class TusService implements OnModuleInit {
     }
   };
 
-  private getFileMetadata(req: any): FileMetadata {
+  private getFileMetadata(req: Request): FileMetadata {
     const uploadMeta: string = req.header('Upload-Metadata');
+    const metadata = this.extractMetadata(uploadMeta);
+
+    let extension: string = metadata.filename
+      ? metadata.filename.split('.').pop()
+      : null;
+    extension = extension && extension.length === 3 ? extension : null;
+    metadata.extension = extension;
+
+    metadata.name = metadata.filename
+      ? metadata.filename.split('.').shift()
+      : null;
+    return metadata;
+  }
+
+  private extractMetadata(uploadMeta: string) {
     const metadata = new FileMetadata();
 
     uploadMeta.split(',').map((item) => {
       const tmp = item.split(' ');
       const key = tmp[0];
-      const value = Buffer.from(tmp[1], 'base64').toString('ascii');
-      metadata[`${key}`] = value;
+      metadata[`${key}`] = Buffer.from(tmp[1], 'base64').toString('utf-8');
     });
-
-    let extension: string = metadata.name
-      ? metadata.name.split('.').pop()
-      : null;
-    extension = extension && extension.length === 3 ? extension : null;
-    metadata.extension = extension;
 
     return metadata;
   }

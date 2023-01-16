@@ -7,6 +7,7 @@ export class ShellService {
   private logger = new Logger('ShellService');
 
   execUnzip(fileName: string): Promise<number> {
+    this.logger.log(`Executing unzip.... ${fileName}`);
     return new Promise((resolve, reject) => {
       const unzip = spawn('unzip', [
         '-q', // quiet

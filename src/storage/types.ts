@@ -1,7 +1,9 @@
 export interface tUploadFileKafkaPayload {
   id: string;
-  size?: number;
+  size: number;
   offset: number;
-  metadata?: string;
-  creation_date?: string;
+  metadata: string;
+  creation_date: string;
+  original_filename?: string;
+  mimetype?: string;
 }
