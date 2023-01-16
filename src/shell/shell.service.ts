@@ -6,7 +6,7 @@ import { storageConfig } from '../config/storage.config';
 export class ShellService {
   private logger = new Logger('ShellService');
 
-  execUnzip(fileName: string): Promise<string> {
+  execUnzip(fileName: string): Promise<number> {
     return new Promise((resolve, reject) => {
       const unzip = spawn('unzip', [
         '-q', // quiet
@@ -40,7 +40,7 @@ export class ShellService {
           this.logger.log(
             `unzip process successfully exited with code ${code}`,
           );
-          resolve(`unzip process successfully exited with code ${code}`);
+          resolve(code);
         } else {
           this.logger.error(`unzip process exited with code ${code}`);
           reject(`unzip process exited with code ${code}`);

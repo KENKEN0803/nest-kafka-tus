@@ -20,13 +20,13 @@ export class KafkaController {
     @Payload() payload: tUploadFileKafkaPayload,
     @Ctx() ctx: KafkaContext,
   ) {
-    this.logger.verbose('@MessagePattern(UNZIP_WAIT) message received');
+    this.logger.log('@MessagePattern(UNZIP_WAIT) message received');
     const heartbeat = await ctx.getHeartbeat();
     const interval = setInterval(() => {
       heartbeat();
     }, 5000);
     try {
-      console.log(payload);
+      this.logger.log(payload);
       await this.kafkaService.handleUnzip(payload);
     } catch (e) {
       // 메시지 재시도 안함
