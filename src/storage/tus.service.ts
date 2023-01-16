@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { EVENTS, MemoryConfigstore, Server, Upload } from '@tus/server';
+import { EVENTS, Server, Upload } from '@tus/server';
 import { storageConfig } from 'src/config/storage.config';
 import { v4 as uuid } from 'uuid';
 import { FileMetadata } from './models/file-metadata.model';
@@ -11,6 +11,7 @@ import { KafkaService } from '../kafka/kafka.service';
 import { UNZIP_WAIT } from '../config/topics.config';
 import { TUS_URL_PRI_FIX } from '../config/server.config';
 import { CustomConfigstore } from './customComfigstore/CustomConfigstore';
+import { tUploadFileKafkaPayload } from './types';
 
 @Injectable()
 export class TusService implements OnModuleInit {
@@ -93,13 +94,16 @@ export class TusService implements OnModuleInit {
     res: HTTP.ServerResponse<HTTP.IncomingMessage>,
     upload: Upload,
   ): Promise<HTTP.ServerResponse<HTTP.IncomingMessage>> => {
-    console.log(upload);
     this.logger.verbose('UploadFinish');
     // 카프카 메시지 전송
-    await this.kafkaService.publish(UNZIP_WAIT, {
-      fileId: upload.id,
+    const payload: tUploadFileKafkaPayload = {
+      id: upload.id,
+      size: upload.size,
+      offset: upload.offset,
       metadata: upload.metadata,
-    });
+      creation_date: upload.creation_date,
+    };
+    await this.kafkaService.publish(UNZIP_WAIT, payload);
     return res;
   };
 

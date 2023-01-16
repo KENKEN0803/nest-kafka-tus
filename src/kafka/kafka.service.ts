@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientKafka, KafkaContext } from '@nestjs/microservices';
+import { ClientKafka } from '@nestjs/microservices';
 import { ShellService } from '../shell/shell.service';
+import { tUploadFileKafkaPayload } from '../storage/types';
 
 @Injectable()
 export class KafkaService {
@@ -13,7 +14,16 @@ export class KafkaService {
     await this.kafkaClient.emit(topic, payload);
   }
 
-  async handleUnzip(payload: any, ctx: KafkaContext) {
-    await this.shellService.execUnzip(payload);
+  async handleUnzip(payload: tUploadFileKafkaPayload) {
+    try {
+      await this.shellService.execUnzip(payload.id);
+      // TODO update database
+      // await this.publish('unzip-complete', payload);
+    } catch (e) {
+      // TODO update database
+      // TODO delete file
+      // await this.publish('unzip-fail', payload);
+      // throw e;
+    }
   }
 }

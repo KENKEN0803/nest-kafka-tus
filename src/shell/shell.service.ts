@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { spawn } from 'child_process';
 import { storageConfig } from '../config/storage.config';
 
 @Injectable()
 export class ShellService {
+  private logger = new Logger('ShellService');
+
   execUnzip(fileName: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const unzip = spawn('unzip', [
@@ -13,39 +15,41 @@ export class ShellService {
         storageConfig.unzipOutputPath,
         `${storageConfig.uploadFileStoragePath}/${fileName}`,
       ]);
-      unzip.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
-      });
+
+      // unzip.stdout.on('data', (data) => {
+      //   console.log(`stdout: ${data}`);
+      // });
 
       unzip.stderr.on('data', (data) => {
-        console.log("shell.stderr.on('data'");
-        console.log(`stderr: ${data}`);
+        this.logger.error(`unzip stderr: ${data}`);
+        reject(`unzip stderr: ${data}`);
       });
 
       unzip.on('error', (error) => {
-        console.log("shell.on('error'");
-        console.log(`error: ${error.message}`);
+        this.logger.error(`unzip error: ${error.message}`);
+        reject(`unzip error: ${error.message}`);
       });
 
-      unzip.on('close', (code) => {
-        console.log('close');
-        console.log(`child process exited with code ${code}`);
-      });
+      // unzip.on('close', (code) => {
+      //   console.log('close');
+      //   console.log(`child process exited with code ${code}`);
+      // });
 
       unzip.on('exit', (code) => {
-        console.log('exit');
-        console.log(`child process exited with code ${code}`);
         if (code === 0) {
-          resolve('success');
+          this.logger.log(
+            `unzip process successfully exited with code ${code}`,
+          );
+          resolve(`unzip process successfully exited with code ${code}`);
         } else {
-          resolve('error');
-          // todo implement exception handling
+          this.logger.error(`unzip process exited with code ${code}`);
+          reject(`unzip process exited with code ${code}`);
         }
       });
 
       unzip.on('disconnect', (code: number) => {
-        console.log('disconnect');
-        console.log(`child process exited with code ${code}`);
+        this.logger.error(`unzip process disconnected with code ${code}`);
+        reject(`unzip process disconnected with code ${code}`);
       });
     });
   }
