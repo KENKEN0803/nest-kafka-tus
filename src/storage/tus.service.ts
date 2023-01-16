@@ -63,7 +63,7 @@ export class TusService implements OnModuleInit {
     this.tusServer = new Server({
       path: TUS_URL_PRI_FIX,
       datastore: store(),
-      namingFunction: this.fileNameFromRequest,
+      // namingFunction: this.fileNameFromRequest, 네이밍평션으로 한글로 생성해놓으면 에러남
       onUploadFinish: this.onUploadFinish,
       onUploadCreate: this.onUploadCreate,
     });
@@ -82,7 +82,7 @@ export class TusService implements OnModuleInit {
     res: Response,
     upload: Upload,
   ): Promise<Response> => {
-    this.logger.verbose('UploadCreate');
+    this.logger.verbose('UploadCreate ' + upload.id);
     return res;
   };
 
@@ -91,23 +91,27 @@ export class TusService implements OnModuleInit {
     res: Response,
     upload: Upload,
   ): Promise<Response> => {
-    this.logger.verbose('UploadFinish ' + upload.id);
+    try {
+      this.logger.verbose('onUploadFinish ' + upload.id);
 
-    const metadata = this.extractMetadata(upload.metadata);
+      const metadata = this.extractMetadata(upload.metadata);
 
-    const payload: tUploadFileKafkaPayload = {
-      id: upload.id,
-      size: upload.size,
-      offset: upload.offset,
-      metadata: upload.metadata,
-      creation_date: upload.creation_date,
-      original_filename: metadata.filename ? metadata.filename : null,
-      mimetype: metadata.filetype ? metadata.filetype : null,
-    };
+      const payload: tUploadFileKafkaPayload = {
+        id: upload.id,
+        size: upload.size,
+        offset: upload.offset,
+        metadata: upload.metadata,
+        creation_date: upload.creation_date,
+        original_filename: metadata.filename ? metadata.filename : null,
+        mimetype: metadata.filetype ? metadata.filetype : null,
+      };
 
-    // 카프카 메시지 전송
-    await this.kafkaService.publish(UNZIP_WAIT, payload);
-    return res;
+      // 카프카 메시지 전송
+      await this.kafkaService.publish(UNZIP_WAIT, payload);
+      return res;
+    } catch (e) {
+      this.logger.error('onUploadFinish error' + e);
+    }
   };
 
   private fileNameFromRequest = (req: Request) => {
@@ -117,7 +121,7 @@ export class TusService implements OnModuleInit {
       const prefix = new Date().getTime().toString();
 
       return metadata.extension && metadata.name
-        ? metadata.name + '_' + prefix + '.' + metadata.extension
+        ? prefix + '_' + metadata.name + '.' + metadata.extension
         : prefix;
     } catch (e) {
       this.logger.error(e);
@@ -128,7 +132,7 @@ export class TusService implements OnModuleInit {
   };
 
   private getFileMetadata(req: Request): FileMetadata {
-    const uploadMeta: string = req.header('Upload-Metadata');
+    const uploadMeta: string = req.header('Upload-Metadata'); // tus 프로토콜 고정
     const metadata = this.extractMetadata(uploadMeta);
 
     let extension: string = metadata.filename
@@ -144,12 +148,14 @@ export class TusService implements OnModuleInit {
   }
 
   private extractMetadata(uploadMeta: string) {
+    // filename aGprbHNmaGRsa2pnYWRza2Yuemlw,filetype YXBwbGljYXRpb24vemlw
     const metadata = new FileMetadata();
 
     uploadMeta.split(',').map((item) => {
-      const tmp = item.split(' ');
-      const key = tmp[0];
-      metadata[`${key}`] = Buffer.from(tmp[1], 'base64').toString('utf-8');
+      const [key, value] = item.split(' '); // tus 프로토콜 고정
+      if (value && key) {
+        metadata[key] = Buffer.from(value, 'base64').toString('utf-8');
+      }
     });
 
     return metadata;
