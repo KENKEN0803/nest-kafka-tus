@@ -15,6 +15,7 @@ export class KafkaService {
   ) {}
 
   async publish(topic: string, payload: any) {
+    this.logger.log(`kafka publishing to topic ${topic} payload ${payload}`);
     await this.kafkaClient.emit(topic, payload);
   }
 

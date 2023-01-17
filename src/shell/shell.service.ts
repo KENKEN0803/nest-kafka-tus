@@ -33,7 +33,7 @@ export class ShellService {
     return new Promise((resolve, reject) => {
       const unzip = spawn(command, execArgs);
       unzip.on('exit', (code) => {
-        if (code === 0 || code === 1) {
+        if (code === 0) {
           this.logger.log(
             `unzip process successfully exited with code ${code}`,
           );
@@ -77,7 +77,7 @@ export class ShellService {
     return new Promise((resolve, reject) => {
       const dockerBfconvert = spawn(command, execArgs);
       dockerBfconvert.on('exit', (code) => {
-        if (code === 0 || code === 1) {
+        if (code === 0) {
           this.logger.log(
             `bfconvert process successfully exited with code ${code}`,
           );
