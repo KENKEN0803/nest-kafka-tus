@@ -32,42 +32,17 @@ export class ShellService {
 
     return new Promise((resolve, reject) => {
       const unzip = spawn(command, execArgs);
-
-      // unzip.stdout.on('data', (data) => {
-      //   console.log(`stdout: ${data}`);
-      // });
-
-      // unzip.stderr.on('data', (data) => {
-      //   this.logger.error(`unzip stderr: ${data}`);
-      //   reject(`unzip stderr: ${data}`);
-      // });
-
-      // unzip.on('error', (error) => {
-      //   this.logger.error(`unzip error: ${error.message}`);
-      //   reject(`unzip error: ${error.message}`);
-      // });
-
-      // unzip.on('close', (code) => {
-      //   console.log('close');
-      //   console.log(`child process exited with code ${code}`);
-      // });
-
       unzip.on('exit', (code) => {
-        if (code === 0) {
+        if (code === 0 || code === 1) {
           this.logger.log(
             `unzip process successfully exited with code ${code}`,
           );
           resolve(code);
         } else {
-          this.logger.error(`unzip process fail with code ${code}`);
-          reject(`unzip process exited fail code ${code}`);
+          this.logger.error(`unzip process failed with code ${code}`);
+          reject(`unzip process exited failed code ${code}`);
         }
       });
-
-      // unzip.on('disconnect', (code: number) => {
-      //   this.logger.error(`unzip process disconnected with code ${code}`);
-      //   reject(`unzip process disconnected with code ${code}`);
-      // });
     });
   }
 
@@ -101,36 +76,51 @@ export class ShellService {
 
     return new Promise((resolve, reject) => {
       const dockerBfconvert = spawn(command, execArgs);
-
-      dockerBfconvert.on('error', (error) => {
-        this.logger.error(`bfconvert error: ${error.message}`);
-        reject(`bfconvert error: ${error.message}`);
-      });
-
       dockerBfconvert.on('exit', (code) => {
-        if (code === 0) {
+        if (code === 0 || code === 1) {
           this.logger.log(
             `bfconvert process successfully exited with code ${code}`,
           );
           resolve(code);
         } else {
-          this.logger.error(`bfconvert process exited with code ${code}`);
-          reject(`bfconvert process exited with code ${code}`);
+          this.logger.error(`bfconvert process failed with code ${code}`);
+          reject(`bfconvert process failed with code ${code}`);
         }
       });
+    });
+  }
 
-      dockerBfconvert.on('disconnect', (code: number) => {
-        this.logger.error(`bfconvert process disconnected with code ${code}`);
-        reject(`bfconvert process disconnected with code ${code}`);
-      });
+  execGdalTiling(fileName: string): Promise<number> {
+    this.logger.log(`Executing gdal translate.... ${fileName}`);
+    const command = 'docker';
+    const execArgs = [
+      'run',
+      '--rm', // remove container after exit
+      '-v', // volume
+      `${storageConfig.imageConvertOutputPath}:/data`,
+      '-v',
+      `${storageConfig.imageConvertOutputPath}:/output`,
+      'osgeo/gdal:ubuntu-full-3.6.1',
+      'gdal2tiles.py',
+      `/data/${fileName}`,
+      '/output',
+      '-p',
+      'raster',
+      '--xyz',
+    ];
 
-      dockerBfconvert.stderr.on('data', (data) => {
-        this.logger.error(`bfconvert stderr: ${data}`);
-        reject(`bfconvert stderr: ${data}`);
-      });
-
-      dockerBfconvert.on('message', (message) => {
-        this.logger.log(`bfconvert message: ${message}`);
+    return new Promise((resolve, reject) => {
+      const dockerGdal = spawn(command, execArgs);
+      dockerGdal.on('exit', (code) => {
+        if (code === 0 || code === 1) {
+          this.logger.log(
+            `gdal translate process successfully exited with code ${code}`,
+          );
+          resolve(code);
+        } else {
+          this.logger.error(`gdal translate process failed with code ${code}`);
+          reject(`gdal translate process failed with code ${code}`);
+        }
       });
     });
   }
