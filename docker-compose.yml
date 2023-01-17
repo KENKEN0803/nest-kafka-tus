@@ -3,8 +3,8 @@ services:
 
   zookeeper-1:
     image: confluentinc/cp-zookeeper:6.1.9
-    platform: linux/amd64
-    restart: always
+    #    platform: linux/amd64
+    restart: "always"
     ports:
       - '32181:32181'
     environment:
@@ -13,8 +13,8 @@ services:
 
   kafka-1:
     image: confluentinc/cp-kafka:6.1.9
-    platform: linux/amd64
-    restart: always
+    #    platform: linux/amd64
+    restart: "always"
     ports:
       - '9092:9092'
     depends_on:
@@ -30,8 +30,8 @@ services:
 
   kafka-2:
     image: confluentinc/cp-kafka:6.1.9
-    platform: linux/amd64
-    restart: always
+    #    platform: linux/amd64
+    restart: "always"
     ports:
       - '9093:9093'
     depends_on:
@@ -47,8 +47,8 @@ services:
 
   kafka-3:
     image: confluentinc/cp-kafka:6.1.9
-    platform: linux/amd64
-    restart: always
+    #    platform: linux/amd64
+    restart: "always"
     ports:
       - '9094:9094'
     depends_on:
@@ -64,7 +64,7 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui
-    restart: always
+    restart: "always"
     container_name: kafka-ui
     ports:
       - "8989:8080"
@@ -75,7 +75,7 @@ services:
 
   mariadb:
     image: mariadb:10.9.4
-    restart: always
+    restart: "always"
     ports:
       - 3306:3306
     environment:
@@ -95,13 +95,13 @@ services:
 
   redis:
     image: redis:7.0.7
-    restart: always
+    restart: "always"
     ports:
       - "6379:6379"
 
   emqx:
     image: emqx:5.0.13
-    restart: always
+    restart: "always"
     ports:
       - "1883:1883"
       - "8081:8081"
@@ -112,9 +112,23 @@ services:
 
   mongodb:
     image: mongo:6.0.3
-    restart: always
+    restart: "always"
     ports:
       - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=mongo
       - MONGO_INITDB_ROOT_PASSWORD=mongo
+
+  #  bioformat용 일회용 컨테이너
+  disposable-java:
+    image: amazoncorretto:17.0.5
+    restart: "no"
+    volumes:
+      - ./disposable-java:/app
+
+  #  타일링용 일회용 컨테이너
+  disposable-python-gdal:
+    image: osgeo/gdal:ubuntu-full-3.6.1
+    restart: "no"
+    volumes:
+      - ./disposable-python-gdal:/app
