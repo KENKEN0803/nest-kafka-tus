@@ -74,22 +74,40 @@ export class ShellService {
   execImageConvert(fileName: string, series: number): Promise<number> {
     this.logger.log(`Executing image convert.... ${fileName} series ${series}`);
     const VSI_FILE_ENTRY = 'Image.vsi';
-    const BFTOOLS_PATH = './bftools/bfconvert';
+    // const BFTOOLS_PATH = './bftools/bfconvert';
+    // const execArgs = [
+    //   '-series',
+    //   series.toString(),
+    //   storageConfig.unzipOutputPath + '/' + fileName + '/' + VSI_FILE_ENTRY,
+    //   storageConfig.imageConvertOutputPath + '/' + fileName + '.tiff',
+    // ];
+    const command = 'docker';
     const execArgs = [
+      'run',
+      '--rm', // remove container after exit
+      '-v', // volume
+      `${storageConfig.unzipOutputPath}:/data`,
+      '-v',
+      `${storageConfig.imageConvertOutputPath}:/output`,
+      '-v',
+      `${storageConfig.bioFormatPath}:/bftools`,
+      'amazoncorretto:17.0.5',
+      '/bftools/bfconvert',
       '-series',
       series.toString(),
-      storageConfig.unzipOutputPath + '/' + fileName + '/' + VSI_FILE_ENTRY,
-      storageConfig.imageConvertOutputPath + '/' + fileName + '.tiff',
+      `/data/${fileName}/${VSI_FILE_ENTRY}`,
+      `/output/${fileName}.tiff`,
     ];
-    return new Promise((resolve, reject) => {
-      const bfconvert = spawn(BFTOOLS_PATH, execArgs);
 
-      bfconvert.on('error', (error) => {
+    return new Promise((resolve, reject) => {
+      const dockerBfconvert = spawn(command, execArgs);
+
+      dockerBfconvert.on('error', (error) => {
         this.logger.error(`bfconvert error: ${error.message}`);
         reject(`bfconvert error: ${error.message}`);
       });
 
-      bfconvert.on('exit', (code) => {
+      dockerBfconvert.on('exit', (code) => {
         if (code === 0) {
           this.logger.log(
             `bfconvert process successfully exited with code ${code}`,
@@ -101,17 +119,17 @@ export class ShellService {
         }
       });
 
-      bfconvert.on('disconnect', (code: number) => {
+      dockerBfconvert.on('disconnect', (code: number) => {
         this.logger.error(`bfconvert process disconnected with code ${code}`);
         reject(`bfconvert process disconnected with code ${code}`);
       });
 
-      bfconvert.stderr.on('data', (data) => {
+      dockerBfconvert.stderr.on('data', (data) => {
         this.logger.error(`bfconvert stderr: ${data}`);
         reject(`bfconvert stderr: ${data}`);
       });
 
-      bfconvert.on('message', (message) => {
+      dockerBfconvert.on('message', (message) => {
         this.logger.log(`bfconvert message: ${message}`);
       });
     });

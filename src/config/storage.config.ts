@@ -8,6 +8,7 @@ export const storageConfig = {
   unzipOutputPath: process.env.UNZIP_OUTPUT_PATH,
   uploadFileStoragePath: process.env.UPLOAD_FILE_STORAGE_PATH,
   imageConvertOutputPath: process.env.IMAGE_CONVERT_OUTPUT_PATH,
+  bioFormatPath: process.env.BIO_FORMAT_PATH,
 
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
