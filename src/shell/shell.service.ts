@@ -17,7 +17,7 @@ export class ShellService {
         '-q', // quiet
         '-o', // overwrite
         '-d', // destination
-        storageConfig.unzipOutputPath,
+        `${storageConfig.unzipOutputPath}/${fileName}`,
         `${storageConfig.uploadFileStoragePath}/${fileName}`,
       ];
     } else {
@@ -26,7 +26,7 @@ export class ShellService {
         '-xvf',
         `${storageConfig.uploadFileStoragePath}/${fileName}`,
         '-C',
-        storageConfig.unzipOutputPath,
+        `${storageConfig.unzipOutputPath}/${fileName}`,
       ];
     }
 

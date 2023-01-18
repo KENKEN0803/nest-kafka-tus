@@ -37,3 +37,4 @@ lerna-debug.log*
 yarn.lock
 
 /files
+/xyz
