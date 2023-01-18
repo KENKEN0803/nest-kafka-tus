@@ -46,22 +46,64 @@ export class ShellService {
     });
   }
 
-  execImageConvert(fileName: string, series: number): Promise<number> {
+  findVsiFileLocation(fileName: string): Promise<string> {
+    this.logger.log(`Executing find vsi file.... ${fileName}`);
+    const command = 'find';
+    const execArgs = [
+      `${storageConfig.unzipOutputPath}/${fileName}`,
+      '-name',
+      '*.vsi',
+      '-print0', // print null terminated
+    ];
+
+    return new Promise((resolve, reject) => {
+      const findVsi = spawn(command, execArgs);
+      findVsi.stdout.on('data', (data) => {
+        this.logger.log(`stdout: ${data}`);
+        resolve(data.toString().replace('\0', ''));
+      });
+
+      findVsi.stderr.on('data', (data) => {
+        this.logger.log(`stderr: ${data}`);
+        reject(data.toString());
+      });
+
+      findVsi.on('error', (error) => {
+        this.logger.log(`error: ${error}`);
+        reject(error.toString());
+      });
+
+      findVsi.on('exit', (code) => {
+        if (code === 0) {
+          this.logger.log(
+            `find vsi process successfully exited with code ${code}`,
+          );
+        } else {
+          this.logger.error(`find vsi process failed with code ${code}`);
+          reject(`find vsi process failed with code ${code}`);
+        }
+      });
+    });
+  }
+
+  execImageConvert(
+    fileName: string,
+    series: number,
+    vsiFilePath,
+  ): Promise<number> {
     this.logger.log(`Executing image convert.... ${fileName} series ${series}`);
-    const VSI_FILE_ENTRY = 'Image.vsi';
-    // const BFTOOLS_PATH = './bftools/bfconvert';
-    // const execArgs = [
-    //   '-series',
-    //   series.toString(),
-    //   storageConfig.unzipOutputPath + '/' + fileName + '/' + VSI_FILE_ENTRY,
-    //   storageConfig.imageConvertOutputPath + '/' + fileName + '.tiff',
-    // ];
+
+    // remove Image.vsi from /0f6e94de262a4c8122d544305fa11de6/sampleData/Image.vsi
+    const temp = vsiFilePath.split('/');
+    const vsiFileName = temp.pop();
+    const vsiDir = temp.join('/');
+
     const command = 'docker';
     const execArgs = [
       'run',
       '--rm', // remove container after exit
       '-v', // volume
-      `${storageConfig.unzipOutputPath}:/data`,
+      `${vsiDir}:/data`,
       '-v',
       `${storageConfig.imageConvertOutputPath}:/output`,
       '-v',
@@ -70,12 +112,25 @@ export class ShellService {
       '/bftools/bfconvert',
       '-series',
       series.toString(),
-      `/data/${fileName}/${VSI_FILE_ENTRY}`,
+      `/data/${vsiFileName}`,
       `/output/${fileName}.tiff`,
     ];
 
     return new Promise((resolve, reject) => {
       const dockerBfconvert = spawn(command, execArgs);
+
+      dockerBfconvert.stdout.on('data', (data) => {
+        this.logger.log(`stdout: ${data}`);
+      });
+
+      dockerBfconvert.stderr.on('data', (data) => {
+        this.logger.log(`stderr: ${data}`);
+      });
+
+      dockerBfconvert.on('error', (error) => {
+        this.logger.log(`error: ${error}`);
+      });
+
       dockerBfconvert.on('exit', (code) => {
         if (code === 0) {
           this.logger.log(
@@ -90,8 +145,8 @@ export class ShellService {
     });
   }
 
-  execGdalTiling(fileName: string): Promise<number> {
-    this.logger.log(`Executing gdal translate.... ${fileName}`);
+  execTiling(fileName: string): Promise<number> {
+    this.logger.log(`Executing gdal tiling.... ${fileName}`);
     const command = 'docker';
     const execArgs = [
       'run',
@@ -99,10 +154,11 @@ export class ShellService {
       '-v', // volume
       `${storageConfig.imageConvertOutputPath}:/data`,
       '-v',
-      `${storageConfig.imageConvertOutputPath}:/output`,
+      `${storageConfig.nginxStaticPath}:/output`,
       'osgeo/gdal:ubuntu-full-3.6.1',
       'gdal2tiles.py',
-      `/data/${fileName}`,
+      `/data/${fileName}.tiff`,
+      // `/output/${fileName}`, TODO 주석해제
       '/output',
       '-p',
       'raster',
@@ -112,14 +168,68 @@ export class ShellService {
     return new Promise((resolve, reject) => {
       const dockerGdal = spawn(command, execArgs);
       dockerGdal.on('exit', (code) => {
-        if (code === 0 || code === 1) {
+        if (code === 0) {
           this.logger.log(
-            `gdal translate process successfully exited with code ${code}`,
+            `gdal tiling process successfully exited with code ${code}`,
           );
           resolve(code);
         } else {
-          this.logger.error(`gdal translate process failed with code ${code}`);
-          reject(`gdal translate process failed with code ${code}`);
+          this.logger.error(`gdal tiling process failed with code ${code}`);
+          reject(`gdal tiling process failed with code ${code}`);
+        }
+      });
+    });
+  }
+
+  /**
+   * @deprecated
+   * @param fileName : string
+   */
+  execMoveTiledFile(fileName: string): Promise<number> {
+    this.logger.log(`Executing move tiled file.... ${fileName}`);
+    const command = 'mv';
+    const execArgs = [
+      '-r', // recursive
+      `${storageConfig.imageConvertOutputPath}/${fileName}`,
+      `${storageConfig.nginxStaticPath}`,
+    ];
+
+    return new Promise((resolve, reject) => {
+      const moveTiledFile = spawn(command, execArgs);
+      moveTiledFile.on('exit', (code) => {
+        if (code === 0) {
+          this.logger.log(
+            `move tiled file process successfully exited with code ${code}`,
+          );
+          resolve(code);
+        } else {
+          this.logger.error(`move tiled file process failed with code ${code}`);
+          reject(`move tiled file process failed with code ${code}`);
+        }
+      });
+    });
+  }
+
+  execRemoveTiffFile(fileName: string): Promise<number> {
+    this.logger.log(`Executing remove tiff file.... ${fileName}`);
+    const command = 'rm';
+    const execArgs = [
+      `${storageConfig.imageConvertOutputPath}/${fileName}.tiff`,
+    ];
+
+    return new Promise((resolve, reject) => {
+      const removeTiffFile = spawn(command, execArgs);
+      removeTiffFile.on('exit', (code) => {
+        if (code === 0) {
+          this.logger.log(
+            `remove tiff file process successfully exited with code ${code}`,
+          );
+          resolve(code);
+        } else {
+          this.logger.error(
+            `remove tiff file process failed with code ${code}`,
+          );
+          reject(`remove tiff file process failed with code ${code}`);
         }
       });
     });

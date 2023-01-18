@@ -104,6 +104,7 @@ export class TusService implements OnModuleInit {
         creation_date: upload.creation_date,
         original_filename: metadata.filename ? metadata.filename : null,
         mimetype: metadata.filetype ? metadata.filetype : null,
+        vsi_path: null,
       };
 
       // 카프카 메시지 전송

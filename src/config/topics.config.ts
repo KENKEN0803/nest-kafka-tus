@@ -1,7 +1,6 @@
 export const UNZIP_WAIT = 'unzip-wait';
 export const TARGET_IMAGE_FIND_WAIT = 'target-image-find-wait';
-export const TARGET_IMAGE_FINE_DONE = 'target-image-fine-done';
-export const TARGET_IMAGE_FIND_FAIL = 'target-image-find-fail';
+export const TARGET_IMAGE_FIND_DONE = 'target-image-find-done';
 export const TILING_WAIT = 'tiling-wait';
 export const TILING_DONE = 'tiling-done';
 export const TILING_FAIL = 'tiling-fail';

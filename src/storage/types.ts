@@ -6,4 +6,5 @@ export interface tUploadFileKafkaPayload {
   creation_date: string;
   original_filename?: string;
   mimetype?: string;
+  vsi_path?: string;
 }
