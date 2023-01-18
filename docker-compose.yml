@@ -93,31 +93,31 @@ services:
   #    extra_hosts:
   #      - "moby:127.0.0.1"
 
-  redis:
-    image: redis:7.0.7
-    restart: "always"
-    ports:
-      - "6379:6379"
+  #  redis:
+  #    image: redis:7.0.7
+  #    restart: "always"
+  #    ports:
+  #      - "6379:6379"
 
-  emqx:
-    image: emqx:5.0.13
-    restart: "always"
-    ports:
-      - "1883:1883"
-      - "8081:8081"
-      - "8083:8083"
-      - "8084:8084"
-      - "8883:8883"
-      - "18083:18083"
+  #  emqx:
+  #    image: emqx:5.0.13
+  #    restart: "always"
+  #    ports:
+  #      - "1883:1883"
+  #      - "8081:8081"
+  #      - "8083:8083"
+  #      - "8084:8084"
+  #      - "8883:8883"
+  #      - "18083:18083"
 
-  mongodb:
-    image: mongo:6.0.3
-    restart: "always"
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=mongo
-      - MONGO_INITDB_ROOT_PASSWORD=mongo
+  #  mongodb:
+  #    image: mongo:6.0.3
+  #    restart: "always"
+  #    ports:
+  #      - "27017:27017"
+  #    environment:
+  #      - MONGO_INITDB_ROOT_USERNAME=mongo
+  #      - MONGO_INITDB_ROOT_PASSWORD=mongo
 
   #  bioformat용 일회용 컨테이너
   disposable-java:
