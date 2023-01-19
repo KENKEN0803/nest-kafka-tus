@@ -149,17 +149,22 @@ export class TusService implements OnModuleInit {
   }
 
   private extractMetadata(uploadMeta: string) {
-    // filename aGprbHNmaGRsa2pnYWRza2Yuemlw,filetype YXBwbGljYXRpb24vemlw
-    const metadata = new FileMetadata();
+    if (typeof uploadMeta === 'string') {
+      // filename aGprbHNmaGRsa2pnYWRza2Yuemlw,filetype YXBwbGljYXRpb24vemlw
+      const metadata = new FileMetadata();
 
-    uploadMeta.split(',').map((item) => {
-      const [key, value] = item.split(' '); // tus 프로토콜 고정
-      if (value && key) {
-        metadata[key] = Buffer.from(value, 'base64').toString('utf-8');
-      }
-    });
+      uploadMeta.split(',').map((item) => {
+        const [key, value] = item.split(' '); // tus 프로토콜 고정
+        if (value && key) {
+          metadata[key] = Buffer.from(value, 'base64').toString('utf-8');
+        }
+      });
 
-    return metadata;
+      return metadata;
+    } else {
+      // 리눅스/도커 환경에서는 uploadMeta가 string이 아닌 object로 넘어옴?
+      return uploadMeta;
+    }
   }
 
   private initializeTusServer() {
