@@ -93,7 +93,6 @@ export class TusService implements OnModuleInit {
   ): Promise<Response> => {
     try {
       this.logger.verbose('onUploadFinish ' + upload.id);
-
       const metadata = this.extractMetadata(upload.metadata);
 
       const payload: tUploadFileKafkaPayload = {
@@ -149,6 +148,10 @@ export class TusService implements OnModuleInit {
   }
 
   private extractMetadata(uploadMeta: string) {
+    if (typeof uploadMeta === 'object') {
+      return uploadMeta;
+    }
+
     // filename aGprbHNmaGRsa2pnYWRza2Yuemlw,filetype YXBwbGljYXRpb24vemlw
     const metadata = new FileMetadata();
 

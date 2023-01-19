@@ -7,6 +7,7 @@ import { Logger } from '@nestjs/common';
 const logger = new Logger('main');
 
 async function bootstrap() {
+  logger.log(`kafka brokers: ${KAFKA_BROKERS}`);
   const [kafka, app] = await Promise.all([
     await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
       transport: Transport.KAFKA,
