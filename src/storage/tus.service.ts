@@ -102,8 +102,8 @@ export class TusService implements OnModuleInit {
         offset: upload.offset,
         metadata: upload.metadata,
         creation_date: upload.creation_date,
-        original_filename: metadata.filename ? metadata.filename : null,
-        mimetype: metadata.filetype ? metadata.filetype : null,
+        original_filename: metadata?.filename ? metadata.filename : null,
+        mimetype: metadata?.filetype ? metadata.filetype : null,
         vsi_path: null,
       };
 
