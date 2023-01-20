@@ -7,12 +7,17 @@ import { API_SERVER_PORT } from '../config/server.config';
 import { TARGET_IMAGE_FIND_WAIT, TILING_WAIT } from '../config/topics.config';
 import { storageConfig } from '../config/storage.config';
 import { tTargetImageFind } from './types';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FileEntity } from '../entity/FileEntity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class KafkaService {
   private logger = new Logger('KafkaService');
 
   constructor(
+    @InjectRepository(FileEntity)
+    private fileRepository: Repository<FileEntity>,
     @Inject('KAFKA_CLIENT_MODULE') private readonly kafkaClient: ClientKafka,
     private readonly shellService: ShellService,
   ) {}

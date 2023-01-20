@@ -80,6 +80,7 @@ services:
       - 3306:3306
     environment:
       - MARIADB_ROOT_PASSWORD=1234
+      - TZ=Asia/Seoul
 
   #  kafka-mqtt:
   #    image: confluentinc/cp-kafka-mqtt:6.1.9

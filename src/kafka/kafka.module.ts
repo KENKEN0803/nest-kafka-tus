@@ -4,6 +4,8 @@ import { KafkaService } from './kafka.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { KAFKA_BROKERS } from '../config/server.config';
 import { ShellModule } from '../shell/shell.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { FileEntity } from '../entity/FileEntity';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { ShellModule } from '../shell/shell.module';
         },
       },
     ]),
+    TypeOrmModule.forFeature([FileEntity]),
     ShellModule,
   ],
   controllers: [KafkaController],

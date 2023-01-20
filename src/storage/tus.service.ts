@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EVENTS, Server, Upload } from '@tus/server';
 import { storageConfig } from 'src/config/storage.config';
-import { FileMetadata } from './models/file-metadata.model';
+import { FileMetadata } from '../models/file-metadata.model';
 import { FileStore } from '@tus/file-store';
 import { S3Store } from '@tus/s3-store';
 import assert from 'assert';
@@ -10,13 +10,20 @@ import { UNZIP_WAIT } from '../config/topics.config';
 import { TUS_URL_PRI_FIX } from '../config/server.config';
 import { tUploadFileKafkaPayload } from './types';
 import { Request, Response } from 'express';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FileEntity } from '../entity/FileEntity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TusService implements OnModuleInit {
   private tusServer;
   private logger = new Logger('TusService');
 
-  constructor(private readonly kafkaService: KafkaService) {
+  constructor(
+    private readonly kafkaService: KafkaService,
+    @InjectRepository(FileEntity)
+    private fileRepository: Repository<FileEntity>,
+  ) {
     const stores = {
       S3Store: () => {
         assert.ok(
