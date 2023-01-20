@@ -1,16 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
-import {
-  Ctx,
-  KafkaContext,
-  MessagePattern,
-  Payload,
-} from '@nestjs/microservices';
+import { Ctx, KafkaContext, MessagePattern, Payload } from '@nestjs/microservices';
 import { KafkaService } from './kafka.service';
-import {
-  TARGET_IMAGE_FIND_DONE,
-  TILING_WAIT,
-  UNZIP_WAIT,
-} from '../config/topics.config';
+import { TARGET_IMAGE_FIND_DONE, TILING_WAIT, UNZIP_WAIT } from '../config/topics.config';
 import { tUploadFileKafkaPayload } from '../storage/types';
 import { tTargetImageFind } from './types';
 
@@ -23,10 +14,7 @@ export class KafkaController {
   constructor(private readonly kafkaService: KafkaService) {}
 
   @MessagePattern(UNZIP_WAIT)
-  async shiftUnzip(
-    @Payload() payload: tUploadFileKafkaPayload,
-    @Ctx() ctx: KafkaContext,
-  ) {
+  async shiftUnzip(@Payload() payload: tUploadFileKafkaPayload, @Ctx() ctx: KafkaContext) {
     this.logger.log('@MessagePattern(UNZIP_WAIT) message received');
     this.logger.log(payload);
 
@@ -45,10 +33,7 @@ export class KafkaController {
   }
 
   @MessagePattern(TARGET_IMAGE_FIND_DONE)
-  async shiftTargetImageFindDone(
-    @Payload() payload: tTargetImageFind,
-    @Ctx() ctx: KafkaContext,
-  ) {
+  async shiftTargetImageFindDone(@Payload() payload: tTargetImageFind, @Ctx() ctx: KafkaContext) {
     this.logger.log('@MessagePattern(TARGET_IMAGE_FIND_DONE)');
     this.logger.log(payload);
 
@@ -72,10 +57,7 @@ export class KafkaController {
   }
 
   @MessagePattern(TILING_WAIT)
-  async shiftTilingWait(
-    @Payload() payload: tTargetImageFind,
-    @Ctx() ctx: KafkaContext,
-  ) {
+  async shiftTilingWait(@Payload() payload: tTargetImageFind, @Ctx() ctx: KafkaContext) {
     this.logger.log('@MessagePattern(TILING_WAIT)');
     this.logger.log(payload);
 

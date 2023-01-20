@@ -32,11 +32,9 @@ export class ShellService {
 
     return new Promise((resolve, reject) => {
       const unzip = spawn(command, execArgs);
-      unzip.on('exit', (code) => {
+      unzip.on('exit', code => {
         if (code === 0) {
-          this.logger.log(
-            `unzip process successfully exited with code ${code}`,
-          );
+          this.logger.log(`unzip process successfully exited with code ${code}`);
           resolve(code);
         } else {
           this.logger.error(`unzip process failed with code ${code}`);
@@ -58,26 +56,24 @@ export class ShellService {
 
     return new Promise((resolve, reject) => {
       const findVsi = spawn(command, execArgs);
-      findVsi.stdout.on('data', (data) => {
+      findVsi.stdout.on('data', data => {
         this.logger.log(`stdout: ${data}`);
         resolve(data.toString().replace('\0', ''));
       });
 
-      findVsi.stderr.on('data', (data) => {
+      findVsi.stderr.on('data', data => {
         this.logger.log(`stderr: ${data}`);
         reject(data.toString());
       });
 
-      findVsi.on('error', (error) => {
+      findVsi.on('error', error => {
         this.logger.log(`error: ${error}`);
         reject(error.toString());
       });
 
-      findVsi.on('exit', (code) => {
+      findVsi.on('exit', code => {
         if (code === 0) {
-          this.logger.log(
-            `find vsi process successfully exited with code ${code}`,
-          );
+          this.logger.log(`find vsi process successfully exited with code ${code}`);
         } else {
           this.logger.error(`find vsi process failed with code ${code}`);
           reject(`find vsi process failed with code ${code}`);
@@ -86,11 +82,7 @@ export class ShellService {
     });
   }
 
-  execImageConvert(
-    fileName: string,
-    series: number,
-    vsiFilePath,
-  ): Promise<number> {
+  execImageConvert(fileName: string, series: number, vsiFilePath): Promise<number> {
     this.logger.log(`Executing image convert.... ${fileName} series ${series}`);
 
     // remove Image.vsi from /0f6e94de262a4c8122d544305fa11de6/sampleData/Image.vsi
@@ -119,23 +111,21 @@ export class ShellService {
     return new Promise((resolve, reject) => {
       const dockerBfconvert = spawn(command, execArgs);
 
-      dockerBfconvert.stdout.on('data', (data) => {
+      dockerBfconvert.stdout.on('data', data => {
         this.logger.log(`stdout: ${data}`);
       });
 
-      dockerBfconvert.stderr.on('data', (data) => {
+      dockerBfconvert.stderr.on('data', data => {
         this.logger.log(`stderr: ${data}`);
       });
 
-      dockerBfconvert.on('error', (error) => {
+      dockerBfconvert.on('error', error => {
         this.logger.log(`error: ${error}`);
       });
 
-      dockerBfconvert.on('exit', (code) => {
+      dockerBfconvert.on('exit', code => {
         if (code === 0) {
-          this.logger.log(
-            `bfconvert process successfully exited with code ${code}`,
-          );
+          this.logger.log(`bfconvert process successfully exited with code ${code}`);
           resolve(code);
         } else {
           this.logger.error(`bfconvert process failed with code ${code}`);
@@ -167,11 +157,9 @@ export class ShellService {
 
     return new Promise((resolve, reject) => {
       const dockerGdal = spawn(command, execArgs);
-      dockerGdal.on('exit', (code) => {
+      dockerGdal.on('exit', code => {
         if (code === 0) {
-          this.logger.log(
-            `gdal tiling process successfully exited with code ${code}`,
-          );
+          this.logger.log(`gdal tiling process successfully exited with code ${code}`);
           resolve(code);
         } else {
           this.logger.error(`gdal tiling process failed with code ${code}`);
@@ -196,11 +184,9 @@ export class ShellService {
 
     return new Promise((resolve, reject) => {
       const moveTiledFile = spawn(command, execArgs);
-      moveTiledFile.on('exit', (code) => {
+      moveTiledFile.on('exit', code => {
         if (code === 0) {
-          this.logger.log(
-            `move tiled file process successfully exited with code ${code}`,
-          );
+          this.logger.log(`move tiled file process successfully exited with code ${code}`);
           resolve(code);
         } else {
           this.logger.error(`move tiled file process failed with code ${code}`);
@@ -213,22 +199,16 @@ export class ShellService {
   execRemoveTiffFile(fileName: string): Promise<number> {
     this.logger.log(`Executing remove tiff file.... ${fileName}`);
     const command = 'rm';
-    const execArgs = [
-      `${storageConfig.imageConvertOutputPath}/${fileName}.tiff`,
-    ];
+    const execArgs = [`${storageConfig.imageConvertOutputPath}/${fileName}.tiff`];
 
     return new Promise((resolve, reject) => {
       const removeTiffFile = spawn(command, execArgs);
-      removeTiffFile.on('exit', (code) => {
+      removeTiffFile.on('exit', code => {
         if (code === 0) {
-          this.logger.log(
-            `remove tiff file process successfully exited with code ${code}`,
-          );
+          this.logger.log(`remove tiff file process successfully exited with code ${code}`);
           resolve(code);
         } else {
-          this.logger.error(
-            `remove tiff file process failed with code ${code}`,
-          );
+          this.logger.error(`remove tiff file process failed with code ${code}`);
           reject(`remove tiff file process failed with code ${code}`);
         }
       });

@@ -6,9 +6,7 @@ dotenv.config();
 export const TUS_URL_PRI_FIX = '/files';
 
 export const API_SERVER_PORT = process.env.API_SERVER_PORT || 8080;
-export const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || [
-  'localhost:29092',
-];
+export const KAFKA_BROKERS = process.env.KAFKA_BROKERS?.split(',') || ['localhost:29092'];
 
 export const MARIA_DB_CONNECTION_CONFIG = {
   host: process.env.MARIA_DB_HOST || 'localhost',

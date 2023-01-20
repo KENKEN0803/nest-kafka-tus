@@ -31,6 +31,6 @@ bootstrap()
     logger.verbose(`Demo url => http://localhost:${API_SERVER_PORT}`);
     logger.verbose(`🚀 All service started successfully 🚀`);
   })
-  .catch((err) => {
+  .catch(err => {
     logger.error(`❌ Error starting service: ${err}`);
   });

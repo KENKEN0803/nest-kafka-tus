@@ -26,22 +26,10 @@ export class TusService implements OnModuleInit {
   ) {
     const stores = {
       S3Store: () => {
-        assert.ok(
-          storageConfig.accessKeyId,
-          'environment variable `AWS_ACCESS_KEY_ID` must be set',
-        );
-        assert.ok(
-          storageConfig.secretAccessKey,
-          'environment variable `AWS_SECRET_ACCESS_KEY` must be set',
-        );
-        assert.ok(
-          storageConfig.bucket,
-          'environment variable `AWS_BUCKET` must be set',
-        );
-        assert.ok(
-          storageConfig.region,
-          'environment variable `AWS_REGION` must be set',
-        );
+        assert.ok(storageConfig.accessKeyId, 'environment variable `AWS_ACCESS_KEY_ID` must be set');
+        assert.ok(storageConfig.secretAccessKey, 'environment variable `AWS_SECRET_ACCESS_KEY` must be set');
+        assert.ok(storageConfig.bucket, 'environment variable `AWS_BUCKET` must be set');
+        assert.ok(storageConfig.region, 'environment variable `AWS_REGION` must be set');
 
         return new S3Store({
           bucket: storageConfig.bucket,
@@ -84,33 +72,33 @@ export class TusService implements OnModuleInit {
     return this.tusServer.handle(req, res);
   }
 
-  private onUploadCreate = async (
-    req: Request,
-    res: Response,
-    upload: Upload,
-  ): Promise<Response> => {
+  private onUploadCreate = async (req: Request, res: Response, upload: Upload): Promise<Response> => {
     this.logger.verbose('UploadCreate ' + upload.id);
     return res;
   };
 
-  private onUploadFinish = async (
-    req: Request,
-    res: Response,
-    upload: Upload,
-  ): Promise<Response> => {
+  private onUploadFinish = async (req: Request, res: Response, upload: Upload): Promise<Response> => {
     try {
       this.logger.verbose('onUploadFinish ' + upload.id);
 
       const metadata = this.extractMetadata(upload.metadata);
 
+      const originalFilename = metadata.filename;
+      if (!originalFilename) {
+        throw new Error('originalFilename extract fail');
+      }
+      const mimeType = metadata.filetype;
+      if (!mimeType) {
+        throw new Error('mimeType extract fail');
+      }
+
       const payload: tUploadFileKafkaPayload = {
         id: upload.id,
         size: upload.size,
         offset: upload.offset,
-        metadata: upload.metadata,
         creation_date: upload.creation_date,
-        original_filename: metadata?.filename ? metadata.filename : null,
-        mimetype: metadata?.filetype ? metadata.filetype : null,
+        original_filename: originalFilename,
+        mimetype: mimeType,
         vsi_path: null,
       };
 
@@ -128,9 +116,7 @@ export class TusService implements OnModuleInit {
 
       const prefix = new Date().getTime().toString();
 
-      return metadata.extension && metadata.name
-        ? prefix + '_' + metadata.name + '.' + metadata.extension
-        : prefix;
+      return metadata.extension && metadata.name ? prefix + '_' + metadata.name + '.' + metadata.extension : prefix;
     } catch (e) {
       this.logger.error(e);
 
@@ -143,15 +129,11 @@ export class TusService implements OnModuleInit {
     const uploadMeta: string = req.header('Upload-Metadata'); // tus 프로토콜 고정
     const metadata = this.extractMetadata(uploadMeta);
 
-    let extension: string = metadata.filename
-      ? metadata.filename.split('.').pop()
-      : null;
+    let extension: string = metadata.filename ? metadata.filename.split('.').pop() : null;
     extension = extension && extension.length === 3 ? extension : null;
     metadata.extension = extension;
 
-    metadata.name = metadata.filename
-      ? metadata.filename.split('.').shift()
-      : null;
+    metadata.name = metadata.filename ? metadata.filename.split('.').shift() : null;
     return metadata;
   }
 
@@ -160,7 +142,7 @@ export class TusService implements OnModuleInit {
       // filename aGprbHNmaGRsa2pnYWRza2Yuemlw,filetype YXBwbGljYXRpb24vemlw
       const metadata = new FileMetadata();
 
-      uploadMeta.split(',').map((item) => {
+      uploadMeta.split(',').map(item => {
         const [key, value] = item.split(' '); // tus 프로토콜 고정
         if (value && key) {
           metadata[key] = Buffer.from(value, 'base64').toString('utf-8');
@@ -178,9 +160,7 @@ export class TusService implements OnModuleInit {
     this.logger.verbose(`Initializing Tus File Upload Server`);
     this.logger.verbose(`Storage Driver: ${storageConfig.storageDriver}`);
     this.logger.verbose(`Unzip Output Path: ${storageConfig.unzipOutputPath}`);
-    this.logger.verbose(
-      `Upload File Storage Path: ${storageConfig.uploadFileStoragePath}`,
-    );
+    this.logger.verbose(`Upload File Storage Path: ${storageConfig.uploadFileStoragePath}`);
     this.tusServer.on(EVENTS.POST_RECEIVE, (...args) => {
       this.logger.verbose(`Upload EVENTS.POST_RECEIVE`);
     });

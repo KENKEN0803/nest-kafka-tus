@@ -11,9 +11,7 @@ export class CustomConfigstore {
     if (isEmpty(previousData)) {
       this.data = new Map<string, Upload>();
     } else {
-      this.data = new Map<string, Upload>(
-        previousData.map((upload) => [upload.id, upload]),
-      );
+      this.data = new Map<string, Upload>(previousData.map(upload => [upload.id, upload]));
     }
   }
 

@@ -69,11 +69,7 @@ export class KafkaService {
     try {
       const vsiPath = await this.shellService.findVsiFileLocation(payload.id); // TODO 다시 찾지 말고 디비에서 가져오기
 
-      await this.shellService.execImageConvert(
-        payload.id,
-        payload.series,
-        vsiPath,
-      );
+      await this.shellService.execImageConvert(payload.id, payload.series, vsiPath);
       // 변환 완료 이미지는 타일링 대기열에 추가
       await this.publish(TILING_WAIT, payload);
     } catch (e) {
