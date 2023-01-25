@@ -21,17 +21,23 @@ export class ShellService {
         `${storageConfig.uploadFileStoragePath}/${fileName}`,
       ];
     } else {
-      command = 'tar';
+      command = storageConfig.windows7zipPath;
       execArgs = [
-        '-xvf',
+        'x',
         `${storageConfig.uploadFileStoragePath}/${fileName}`,
-        '-C',
-        `${storageConfig.unzipOutputPath}/${fileName}`,
+        `-o${storageConfig.unzipOutputPath}/${fileName}`,
       ];
     }
 
     return new Promise((resolve, reject) => {
       const unzip = spawn(command, execArgs);
+
+      unzip.stderr.on('data', data => {
+        this.logger.error('unzip stderr');
+        this.logger.error(data);
+        reject(data.toString());
+      });
+
       unzip.on('exit', code => {
         if (code === 0) {
           this.logger.log(`unzip process successfully exited with code ${code}`);

@@ -44,8 +44,15 @@ export class TusService implements OnModuleInit {
         // const configstore = new MemoryConfigstore();
         const configstore = undefined; // use default configstore => ~/.config/configstore/
 
+        let directory: string;
+        if (process.platform === 'win32') {
+          directory = '/' + storageConfig.uploadFileStoragePath.split('/').slice(2).join('/');
+        } else {
+          directory = storageConfig.uploadFileStoragePath;
+        }
+
         return new FileStore({
-          directory: storageConfig.uploadFileStoragePath,
+          directory,
           configstore,
         });
       },
