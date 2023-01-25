@@ -8,7 +8,7 @@ import { TARGET_IMAGE_FIND_WAIT, TILING_WAIT } from '../config/topics.config';
 import { storageConfig } from '../config/storage.config';
 import { tTargetImageFind } from './types';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FileEntity } from '../entity/FileEntity';
+import { FileEntity, FileStatus } from '../entity/FileEntity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -29,6 +29,9 @@ export class KafkaService {
 
   async handleUnzip(payload: tUploadFileKafkaPayload) {
     try {
+      await this.fileRepository.update(payload.id, {
+        status: FileStatus.UNZIP,
+      });
       await this.shellService.execUnzip(payload.id);
       const vsiPath = await this.shellService.findVsiFileLocation(payload.id);
       // TODO update database

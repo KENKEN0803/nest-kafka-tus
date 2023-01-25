@@ -11,7 +11,7 @@ import { TUS_URL_PRI_FIX } from '../config/server.config';
 import { tUploadFileKafkaPayload } from './types';
 import { Request, Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FileEntity } from '../entity/FileEntity';
+import { FileEntity, FileStatus } from '../entity/FileEntity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -73,8 +73,39 @@ export class TusService implements OnModuleInit {
   }
 
   private onUploadCreate = async (req: Request, res: Response, upload: Upload): Promise<Response> => {
-    this.logger.verbose('UploadCreate ' + upload.id);
-    return res;
+    try {
+      this.logger.verbose('UploadCreate ' + upload.id);
+
+      const metadata = this.extractMetadata(upload.metadata);
+
+      const originalFilename = metadata.filename;
+      if (!originalFilename) {
+        throw new Error('originalFilename extract fail');
+      }
+      const mimeType = metadata.filetype;
+      if (!mimeType) {
+        throw new Error('mimeType extract fail');
+      }
+
+      const payload: tUploadFileKafkaPayload = {
+        id: upload.id,
+        size: upload.size,
+        offset: upload.offset,
+        creation_date: upload.creation_date,
+        original_filename: originalFilename,
+        mimetype: mimeType,
+      };
+
+      await this.fileRepository.save({
+        ...payload,
+        status: FileStatus.UPLOADING,
+      });
+
+      return res;
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
   };
 
   private onUploadFinish = async (req: Request, res: Response, upload: Upload): Promise<Response> => {
@@ -99,13 +130,18 @@ export class TusService implements OnModuleInit {
         creation_date: upload.creation_date,
         original_filename: originalFilename,
         mimetype: mimeType,
-        vsi_path: null,
       };
+
+      await this.fileRepository.update({ id: upload.id }, { ...payload, status: FileStatus.UNZIP });
 
       // 카프카 메시지 전송
       await this.kafkaService.publish(UNZIP_WAIT, payload);
       return res;
     } catch (e) {
+      await this.fileRepository.update(
+        { id: upload.id },
+        { status: FileStatus.ERROR, status_message: '파일 업로드 실패 ' + e.message },
+      );
       this.logger.error('onUploadFinish error' + e);
     }
   };
