@@ -22,7 +22,7 @@ import { MARIA_DB_CONNECTION_CONFIG } from './config/server.config';
       autoLoadEntities: true,
       synchronize: true,
       charset: 'utf8mb4',
-      timezone: 'Asia/Seoul',
+      timezone: '+09:00',
     }),
     StorageModule,
     KafkaModule,
