@@ -72,7 +72,13 @@ export class KafkaService {
     try {
       const vsiPath = await this.shellService.findVsiFileLocation(payload.id); // TODO 다시 찾지 말고 디비에서 가져오기
 
-      await this.shellService.execImageConvert(payload.id, payload.series, vsiPath);
+      if (process.env.OS?.includes('Windows')) {
+        this.logger.log('윈도우 환경에서 이미지 변환 실행');
+        await this.shellService.execImageConvert(payload.id, payload.series, vsiPath);
+      } else {
+        this.logger.log('도커 환경에서 이미지 변환 실행');
+        await this.shellService.execImageConvertDocker(payload.id, payload.series, vsiPath);
+      }
       // 변환 완료 이미지는 타일링 대기열에 추가
       await this.publish(TILING_WAIT, payload);
     } catch (e) {
@@ -89,7 +95,7 @@ export class KafkaService {
 
   async handleTiling(payload: tTargetImageFind) {
     try {
-      await this.shellService.execTiling(payload.id);
+      await this.shellService.execTilingDocker(payload.id);
       await this.shellService.execRemoveTiffFile(payload.id);
       // await this.shellService.execMoveTiledFile(payload.id);
       // TODO update database

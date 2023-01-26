@@ -85,6 +85,49 @@ export class ShellService {
     const vsiFileName = temp.pop();
     const vsiDir = temp.join('/');
 
+    const command = storageConfig.bioFormatPath + '/bfconvert';
+    const execArgs = [
+      '-series',
+      series.toString(),
+      `${vsiDir}/${vsiFileName}`,
+      `${storageConfig.imageConvertOutputPath}/${fileName}.tiff`,
+    ];
+
+    return new Promise((resolve, reject) => {
+      const bfconvert = spawn(command, execArgs);
+
+      bfconvert.stdout.on('data', data => {
+        this.logger.log(`stdout: ${data}`);
+      });
+
+      bfconvert.stderr.on('data', data => {
+        this.logger.log(`stderr: ${data}`);
+      });
+
+      bfconvert.on('error', error => {
+        this.logger.log(`error: ${error}`);
+      });
+
+      bfconvert.on('exit', code => {
+        if (code === 0) {
+          this.logger.log(`bfconvert process successfully exited with code ${code}`);
+          resolve(code);
+        } else {
+          this.logger.error(`bfconvert process failed with code ${code}`);
+          reject(`bfconvert process failed with code ${code}`);
+        }
+      });
+    });
+  }
+
+  execImageConvertDocker(fileName: string, series: number, vsiFilePath): Promise<number> {
+    this.logger.log(`Executing image convert with docker.... ${fileName} series ${series}`);
+
+    // remove Image.vsi from /0f6e94de262a4c8122d544305fa11de6/sampleData/Image.vsi
+    const temp = vsiFilePath.split('/');
+    const vsiFileName = temp.pop();
+    const vsiDir = temp.join('/');
+
     const command = 'docker';
     const execArgs = [
       'run',
@@ -132,6 +175,44 @@ export class ShellService {
 
   execTiling(fileName: string): Promise<number> {
     this.logger.log(`Executing gdal tiling.... ${fileName}`);
+    const command = 'gdal2tiles.py';
+    const execArgs = [
+      `${storageConfig.imageConvertOutputPath}/${fileName}.tiff`,
+      `${storageConfig.nginxStaticPath}/${fileName}`,
+      '-p',
+      'raster',
+      '--xyz',
+    ];
+
+    return new Promise((resolve, reject) => {
+      const gdal2tiles = spawn(command, execArgs);
+
+      gdal2tiles.stdout.on('data', data => {
+        this.logger.log(`stdout: ${data}`);
+      });
+
+      gdal2tiles.stderr.on('data', data => {
+        this.logger.log(`stderr: ${data}`);
+      });
+
+      gdal2tiles.on('error', error => {
+        this.logger.log(`error: ${error}`);
+      });
+
+      gdal2tiles.on('exit', code => {
+        if (code === 0) {
+          this.logger.log(`gdal2tiles process successfully exited with code ${code}`);
+          resolve(code);
+        } else {
+          this.logger.error(`gdal2tiles process failed with code ${code}`);
+          reject(`gdal2tiles process failed with code ${code}`);
+        }
+      });
+    });
+  }
+
+  execTilingDocker(fileName: string): Promise<number> {
+    this.logger.log(`Executing gdal tiling with docker.... ${fileName}`);
     const command = 'docker';
     const execArgs = [
       'run',
