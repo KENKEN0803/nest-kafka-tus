@@ -32,6 +32,8 @@ export class TusService implements OnModuleInit {
         assert.ok(storageConfig.region, 'environment variable `AWS_REGION` must be set');
 
         return new S3Store({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           bucket: storageConfig.bucket,
           accessKeyId: storageConfig.accessKeyId,
           secretAccessKey: storageConfig.secretAccessKey,
@@ -83,6 +85,8 @@ export class TusService implements OnModuleInit {
     try {
       this.logger.verbose('UploadCreate ' + upload.id);
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const metadata = this.extractMetadata(upload.metadata);
 
       const originalFilename = metadata.filename;
@@ -119,6 +123,8 @@ export class TusService implements OnModuleInit {
     try {
       this.logger.verbose('onUploadFinish ' + upload.id);
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const metadata = this.extractMetadata(upload.metadata);
 
       const originalFilename = metadata.filename;
