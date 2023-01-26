@@ -3,10 +3,15 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { API_SERVER_PORT, KAFKA_BROKERS } from './config/server.config';
 import { Logger } from '@nestjs/common';
+import { checkEnv } from './assertEnv';
 
 const logger = new Logger('main');
 
 async function bootstrap() {
+  for (const key of Object.keys(checkEnv)) {
+    await checkEnv[key]();
+  }
+
   const [kafka, app] = await Promise.all([
     await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
       transport: Transport.KAFKA,
