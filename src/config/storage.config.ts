@@ -10,7 +10,6 @@ export const storageConfig = {
   imageConvertOutputPath: process.env.IMAGE_CONVERT_OUTPUT_PATH,
   bioFormatPath: process.env.BIO_FORMAT_PATH,
   nginxStaticPath: process.env.NGINX_STATIC_PATH,
-  windows7zipPath: process.env.WINDOWS_7ZIP_PATH,
 
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,

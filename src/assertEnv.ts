@@ -2,12 +2,12 @@ import { exec } from 'child_process';
 
 export const checkEnv = {
   ifWindowsShouldShellIsBash: async () => {
-    console.log('process.env.SHELL', process.env.SHELL);
-    if (process.platform === 'win32') {
-      if (!process.env.SHELL?.includes('bash')) {
-        throw new Error('윈도우 환경에서는 깃 배시 쉘을 통해 실행되어야함');
-      }
-    }
+    console.log('process.env.SHELL', process.env);
+    // if (process.platform === 'win32') {
+    //   if (!process.env.SHELL?.includes('bash')) {
+    //     throw new Error('윈도우 환경에서는 깃 배시 쉘을 통해 실행되어야함');
+    //   }
+    // }
   },
 
   // shouldJavaInstalled: () => {

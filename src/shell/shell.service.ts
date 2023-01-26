@@ -8,26 +8,15 @@ export class ShellService {
 
   execUnzip(fileName: string): Promise<number> {
     this.logger.log(`Executing unzip.... ${fileName}`);
-    let command;
-    let execArgs;
 
-    if (process.platform !== 'win32') {
-      command = 'unzip';
-      execArgs = [
-        '-q', // quiet
-        '-o', // overwrite
-        '-d', // destination
-        `${storageConfig.unzipOutputPath}/${fileName}`,
-        `${storageConfig.uploadFileStoragePath}/${fileName}`,
-      ];
-    } else {
-      command = storageConfig.windows7zipPath;
-      execArgs = [
-        'x',
-        `${storageConfig.uploadFileStoragePath}/${fileName}`,
-        `-o${storageConfig.unzipOutputPath}/${fileName}`,
-      ];
-    }
+    const command = 'unzip';
+    const execArgs = [
+      '-q', // quiet
+      '-o', // overwrite
+      '-d', // destination
+      `${storageConfig.unzipOutputPath}/${fileName}`,
+      `${storageConfig.uploadFileStoragePath}/${fileName}`,
+    ];
 
     return new Promise((resolve, reject) => {
       const unzip = spawn(command, execArgs);
