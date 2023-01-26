@@ -29,6 +29,8 @@ services:
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
 #      KAFKA_NUM_PARTITIONS: 3
       KAFKA_NUM_PARTITIONS: 1
+      # 멀티브로커 셋팅시 삭제할것
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
 #  kafka-2:
 #    image: confluentinc/cp-kafka:6.1.9
