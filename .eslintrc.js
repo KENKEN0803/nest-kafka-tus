@@ -6,7 +6,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint/eslint-plugin'],
-  extends: ['plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
+  extends: ['plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended', 'prettier'],
   root: true,
   env: {
     node: true,
@@ -14,21 +14,8 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js'],
   rules: {
-    'prettier/prettier': [
-      'error',
-      {
-        tabWidth: 2,
-        printWidth: 120,
-        singleQuote: true,
-        trailingComma: 'all',
-        semi: true,
-        arrowParens: 'avoid',
-      },
-    ],
     // ? nestjs 기본 eslint
     '@typescript-eslint/interface-name-prefix': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
     // ! 사용되지 않는 변수에 대한 경고를 무시합니다.
     '@typescript-eslint/no-unused-vars': [
       'warn', // or "error"
