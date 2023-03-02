@@ -1,6 +1,6 @@
 import { All, Controller, Req, Res } from '@nestjs/common';
 import { TusService } from './tus.service';
-import { TUS_URL_PRI_FIX } from '../config/server.config';
+import { TUS_URL_PRI_FIX } from '../lib/config/server.config';
 import { Request, Response } from 'express';
 
 @Controller()

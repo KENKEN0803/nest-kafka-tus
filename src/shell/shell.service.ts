@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { spawn } from 'child_process';
-import { storageConfig } from '../config/storage.config';
+import { storageConfig } from '../lib/config/storage.config';
 
 @Injectable()
 export class ShellService {

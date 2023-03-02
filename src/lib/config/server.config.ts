@@ -3,6 +3,8 @@ import * as dotenv from 'dotenv';
 // loading .env file
 dotenv.config();
 
+export const IS_DEV = process.env.EXEC_MODE === 'dev';
+
 export const TUS_URL_PRI_FIX = '/files';
 
 export const API_SERVER_PORT = process.env.API_SERVER_PORT || 8080;

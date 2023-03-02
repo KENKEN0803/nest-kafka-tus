@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { KafkaController } from './kafka.controller';
 import { KafkaService } from './kafka.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { KAFKA_BROKERS } from '../config/server.config';
+import { KAFKA_BROKERS } from '../lib/config/server.config';
 import { ShellModule } from '../shell/shell.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileEntity } from '../entity/FileEntity';

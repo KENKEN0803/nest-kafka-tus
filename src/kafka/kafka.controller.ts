@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { Ctx, KafkaContext, MessagePattern, Payload } from '@nestjs/microservices';
 import { KafkaService } from './kafka.service';
-import { TARGET_IMAGE_FIND_DONE, TILING_WAIT, UNZIP_WAIT } from '../config/topics.config';
+import { TARGET_IMAGE_FIND_DONE, TILING_WAIT, UNZIP_WAIT } from '../lib/config/topics.config';
 import { tUploadFileKafkaPayload } from '../storage/types';
 import { tTargetImageFind } from './types';
 

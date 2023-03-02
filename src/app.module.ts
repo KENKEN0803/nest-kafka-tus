@@ -8,7 +8,7 @@ import { UserModule } from './user/user.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MARIA_DB_CONNECTION_CONFIG } from './config/server.config';
+import { IS_DEV, MARIA_DB_CONNECTION_CONFIG } from './lib/config/server.config';
 
 @Module({
   imports: [
@@ -19,8 +19,8 @@ import { MARIA_DB_CONNECTION_CONFIG } from './config/server.config';
     TypeOrmModule.forRoot({
       ...MARIA_DB_CONNECTION_CONFIG,
       type: 'mariadb',
-      autoLoadEntities: true,
-      synchronize: true,
+      autoLoadEntities: IS_DEV,
+      synchronize: IS_DEV,
       charset: 'utf8mb4',
       timezone: 'Asia/Seoul',
     }),

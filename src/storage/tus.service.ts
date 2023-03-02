@@ -1,13 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EVENTS, Server, Upload } from '@tus/server';
-import { storageConfig } from 'src/config/storage.config';
+import { storageConfig } from 'src/lib/config/storage.config';
 import { FileMetadata } from '../models/file-metadata.model';
 import { FileStore } from '@tus/file-store';
 import { S3Store } from '@tus/s3-store';
 import assert from 'assert';
 import { KafkaService } from '../kafka/kafka.service';
-import { UNZIP_WAIT } from '../config/topics.config';
-import { TUS_URL_PRI_FIX } from '../config/server.config';
+import { UNZIP_WAIT } from '../lib/config/topics.config';
+import { TUS_URL_PRI_FIX } from '../lib/config/server.config';
 import { tUploadFileKafkaPayload } from './types';
 import { Request, Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -26,18 +26,18 @@ export class TusService implements OnModuleInit {
   ) {
     const stores = {
       S3Store: () => {
-        assert.ok(storageConfig.accessKeyId, 'environment variable `AWS_ACCESS_KEY_ID` must be set');
-        assert.ok(storageConfig.secretAccessKey, 'environment variable `AWS_SECRET_ACCESS_KEY` must be set');
-        assert.ok(storageConfig.bucket, 'environment variable `AWS_BUCKET` must be set');
-        assert.ok(storageConfig.region, 'environment variable `AWS_REGION` must be set');
-
-        return new S3Store({
-          bucket: storageConfig.bucket,
-          accessKeyId: storageConfig.accessKeyId,
-          secretAccessKey: storageConfig.secretAccessKey,
-          region: storageConfig.region,
-          partSize: 8 * 1024 * 1024, // each uploaded part will have ~8MB,
-        });
+        // assert.ok(storageConfig.accessKeyId, 'environment variable `AWS_ACCESS_KEY_ID` must be set');
+        // assert.ok(storageConfig.secretAccessKey, 'environment variable `AWS_SECRET_ACCESS_KEY` must be set');
+        // assert.ok(storageConfig.bucket, 'environment variable `AWS_BUCKET` must be set');
+        // assert.ok(storageConfig.region, 'environment variable `AWS_REGION` must be set');
+        //
+        // return new S3Store({
+        //   bucket: storageConfig.bucket,
+        //   accessKeyId: storageConfig.accessKeyId,
+        //   secretAccessKey: storageConfig.secretAccessKey,
+        //   region: storageConfig.region,
+        //   partSize: 8 * 1024 * 1024, // each uploaded part will have ~8MB,
+        // });
       },
       FileStore: () => {
         // const configstore = new CustomConfigstore();
@@ -76,7 +76,7 @@ export class TusService implements OnModuleInit {
     try {
       this.logger.verbose('UploadCreate ' + upload.id);
 
-      const metadata = this.extractMetadata(upload.metadata);
+      const metadata = this.extractMetadata(upload.metadata.toString());
 
       const originalFilename = metadata.filename;
       if (!originalFilename) {
@@ -112,7 +112,7 @@ export class TusService implements OnModuleInit {
     try {
       this.logger.verbose('onUploadFinish ' + upload.id);
 
-      const metadata = this.extractMetadata(upload.metadata);
+      const metadata = this.extractMetadata(upload.metadata.toString());
 
       const originalFilename = metadata.filename;
       if (!originalFilename) {
