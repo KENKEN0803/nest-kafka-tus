@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "version-increment": "node -e \"const fs = require('fs'); const content = fs.readFileSync('.env', 'utf8'); const lines = content.split('\\n'); const versionLineIndex = lines.findIndex(line => line.startsWith('VERSION=')); const version = lines[versionLineIndex].split('=')[1]; let [major, minor, patch] = version.split('.').map(part => parseInt(part)); lines[versionLineIndex] = 'VERSION=' + major + '.' + minor + '.' + ++patch; fs.writeFileSync('.env', lines.join('\\n'), 'utf8');\""
   },
   "dependencies": {
     "@nestjs/common": "^9.2.1",
@@ -31,14 +32,20 @@
     "@tus/server": "^1.0.0-beta.2",
     "axios": "^1.2.2",
     "dotenv": "^16.0.3",
-    "ioredis": "^5.2.5",
     "kafkajs": "^2.2.3",
     "lodash": "^4.17.21",
     "mqtt": "^4.3.7",
     "mysql2": "^3.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
-    "typeorm": "^0.3.11"
+    "typeorm": "^0.3.11",
+    "@nestjs-modules/mailer": "^1.8.1",
+    "@nestjs/jwt": "^10.0.1",
+    "@nestjs/mapped-types": "^1.2.0",
+    "@nestjs/swagger": "^6.1.4",
+    "bcrypt": "^5.1.0",
+    "nodemailer": "^6.9.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.1.8",
